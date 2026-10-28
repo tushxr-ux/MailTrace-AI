@@ -7,3 +7,4 @@ export * from "./score";
 export * from "./reasons";
 export * from "./deep";
 export * from "./whitelist";
+export * from "./nlp";

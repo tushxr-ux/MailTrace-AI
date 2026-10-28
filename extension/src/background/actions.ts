@@ -1,4 +1,4 @@
-import { analyzeBody, applyDeep, evaluate } from "@mailtrace/core";
+import { analyzeBody, applyDeep, evaluate, nlpScore } from "@mailtrace/core";
 import type { StoredItem } from "../shared/types";
 import { buildCtx, reeval, reevaluateAll, updateBadge } from "./engine";
 import { lookupDomains } from "./backend";
@@ -60,7 +60,8 @@ export async function requestReport(id: string): Promise<StoredItem> {
   const token = await acquireDeepReadToken();
   try {
     const body = await fetchBodyOnce(id, token);
-    const deep = analyzeBody({ text: body.text, html: body.html });
+    const nlpProbability = nlpScore(body.text || body.html);
+    const deep = analyzeBody({ text: body.text, html: body.html, nlpProbability });
 
     const reps = await lookupDomains(deep.linkDomains);
     for (const r of reps ?? []) {
