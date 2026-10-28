@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MailTrace AI</title>
+  <!-- Office.js from CDN — no build step needed -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    :root {
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+    #app { padding: 12px; }
+
+    /* Header bar */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .logo {
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #6366f1, #22c55e);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .header h1 { font-size: 13px; font-weight: 600; letter-spacing: .3px; }
+
+    /* Risk card */
+    .card {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .risk-badge.green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+    .risk-badge.yellow { background: rgba(245,158,11,.15); color: var(--yellow); border: 1px solid rgba(245,158,11,.3); }
+    .risk-badge.red { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .sender-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+    .sender-email { color: var(--muted); font-size: 11px; word-break: break-all; margin-bottom: 8px; }
+    .reason { color: var(--text); font-size: 12px; line-height: 1.5; }
+
+    /* Auth pills */
+    .auth-row { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+    .pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+    .pill.pass { background: rgba(34,197,94,.15); color: var(--green); }
+    .pill.fail { background: rgba(239,68,68,.15); color: var(--red); }
+    .pill.softfail { background: rgba(245,158,11,.15); color: var(--yellow); }
+    .pill.none, .pill.neutral, .pill.temperror, .pill.permerror { background: rgba(148,163,184,.1); color: var(--muted); }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-deep {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    /* Deep results */
+    .deep-result { margin-top: 10px; }
+    .deep-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    .finding {
+      font-size: 11px;
+      color: var(--text);
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+    }
+    .finding:last-child { border-bottom: none; }
+
+    /* Loading / error */
+    .state-msg {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 12px;
+      font-size: 12px;
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="logo">M</div>
+    <h1>MailTrace AI</h1>
+  </div>
+  <div id="root">
+    <div class="state-msg"><div class="spinner"></div>Loading…</div>
+  </div>
+</div>
+<script src="taskpane.js"></script>
+</body>
+</html>
