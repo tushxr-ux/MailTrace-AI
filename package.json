@@ -1,0 +1,15 @@
+{
+  "name": "mailtrace-ai",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MailTrace AI — privacy-first email threat shield",
+  "workspaces": ["packages/*", "extension"],
+  "scripts": {
+    "test": "npm run test -w @mailtrace/core",
+    "typecheck": "npm run typecheck -w @mailtrace/core && npm run typecheck -w @mailtrace/extension",
+    "build:ext": "npm run build -w @mailtrace/extension",
+    "dev:ext": "npm run dev -w @mailtrace/extension",
+    "dev:backend": "cd backend && uvicorn app.main:app --reload --port 8000",
+    "test:backend": "cd backend && python -m pytest -q"
+  }
+}

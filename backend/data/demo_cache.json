@@ -1,0 +1,7 @@
+{
+  "_comment": "Pre-cached intel for demo emails so a live demo never depends on free-tier API limits.",
+  "amaz0n-security.com": { "ageDays": 3, "createdAt": "2026-10-15T00:00:00Z", "registrar": "NameCheap", "vtMalicious": 11, "vtSuspicious": 2 },
+  "company-careers.io":  { "ageDays": 12, "createdAt": "2026-10-06T00:00:00Z", "registrar": "GoDaddy", "vtMalicious": 0, "vtSuspicious": 1 },
+  "billing-service.com": { "ageDays": 2890, "createdAt": "2018-10-20T00:00:00Z", "registrar": "MarkMonitor", "vtMalicious": 0, "vtSuspicious": 0 },
+  "abc-college-jobs.in": { "ageDays": 5, "createdAt": "2026-10-13T00:00:00Z", "registrar": "NameCheap", "vtMalicious": 2, "vtSuspicious": 0 }
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+__pycache__/
+.pytest_cache/
+.venv/
+*.mmdb
+*.zip
+*.pyc
+.DS_Store
+Thumbs.db
+*.log
+mailtrace-ai-extracted/

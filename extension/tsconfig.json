@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "jsx": "react-jsx", "types": ["chrome"], "noEmit": true },
+  "include": ["src", "scripts/*.d.ts"]
+}
