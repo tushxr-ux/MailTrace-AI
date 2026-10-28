@@ -9,6 +9,7 @@ const logoFull = "assets/logo-full.png";
 const ACTION_LABEL: Record<AuditEntry["action"], string> = {
   metadata_scan: "Scanned sender details", deep_read: "Opened one email for a report", block: "Blocked a sender",
   unblock: "Unblocked a sender", sign_in: "Connected Gmail", clear_data: "Deleted local data",
+  link_check: "Checked links in email (no body read)",
 };
 
 function Summary({ state }: { state: PanelState }) {

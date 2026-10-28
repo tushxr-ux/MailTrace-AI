@@ -14,6 +14,8 @@ export interface StoredItem {
   intel: Intel;
   firstTime: boolean;
   deepRead: boolean;
+  /** true when Content-Type header hints at multipart/mixed (attachment present) */
+  hasAttachment: boolean;
   verdict: Verdict;
 }
 
@@ -21,7 +23,7 @@ export interface BlockedEntry { at: number; filterId?: string }
 
 export interface AuditEntry {
   ts: number;
-  action: "metadata_scan" | "deep_read" | "block" | "unblock" | "sign_in" | "clear_data";
+  action: "metadata_scan" | "deep_read" | "block" | "unblock" | "sign_in" | "clear_data" | "link_check";
   scope: string;
   messageIdHash?: string;
   count?: number;
@@ -50,6 +52,8 @@ export interface Api {
   scanNow(): Promise<void>;
   signIn(): Promise<void>;
   requestReport(id: string): Promise<StoredItem>;
+  /** User explicitly allowed link-domain lookup for this email. */
+  requestLinkCheck(id: string): Promise<StoredItem>;
   block(email: string): Promise<void>;
   unblock(email: string): Promise<void>;
   markSafe(email: string): Promise<void>;

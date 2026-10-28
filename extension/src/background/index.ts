@@ -1,6 +1,6 @@
 import type { Settings } from "../shared/types";
 import { CONFIG } from "../shared/config";
-import { block, clearAll, markSafe, requestReport, signIn, unblock } from "./actions";
+import { block, clearAll, markSafe, requestReport, requestLinkCheck, signIn, unblock } from "./actions";
 import { reevaluateAll, updateBadge } from "./engine";
 import { getToken } from "./gmail";
 import { runScan } from "./scanner";
@@ -29,6 +29,7 @@ chrome.alarms.onAlarm.addListener((a) => {
 type Msg =
   | { type: "getState" } | { type: "scanNow" } | { type: "signIn" }
   | { type: "requestReport"; id: string }
+  | { type: "requestLinkCheck"; id: string }
   | { type: "block" | "unblock" | "markSafe"; email: string }
   | { type: "setSettings"; patch: Partial<Settings> } | { type: "clearData" };
 
@@ -38,6 +39,7 @@ async function handle(m: Msg): Promise<unknown> {
     case "scanNow": await runScan(); return;
     case "signIn": await signIn(); return;
     case "requestReport": return requestReport(m.id);
+    case "requestLinkCheck": return requestLinkCheck(m.id);
     case "block": await block(m.email); return;
     case "unblock": await unblock(m.email); return;
     case "markSafe": await markSafe(m.email); return;

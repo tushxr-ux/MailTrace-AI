@@ -1,4 +1,4 @@
-import { evaluate, isWhitelisted, parseHeaders, FREE_MAIL, type Intel } from "@mailtrace/core";
+import { evaluate, isWhitelisted, parseHeaders, getHeaders, FREE_MAIL, type Intel } from "@mailtrace/core";
 import type { StoredItem } from "../shared/types";
 import { CONFIG } from "../shared/config";
 import { buildCtx, updateBadge } from "./engine";
@@ -43,9 +43,12 @@ async function scanIds(ids: string[], backfill: boolean): Promise<void> {
     // On first install we can't know who has emailed the user before, so don't call everyone "new".
     const firstTime = !backfill && !seen.has(hash);
     const verdict = evaluate(meta, intel, { ...base, isFirstTimeSender: firstTime });
+    // Detect attachment hint: Content-Type: multipart/mixed means at least one attachment part.
+    const ct = getHeaders(m.headers, "Content-Type")[0] ?? "";
+    const hasAttachment = ct.toLowerCase().startsWith("multipart/mixed");
     return {
       id, threadId: m.threadId, fromEmail: meta.from.email, fromName: meta.from.name,
-      subject: meta.subject, ts: m.internalDate || Date.now(), meta, intel, firstTime, deepRead: false, verdict,
+      subject: meta.subject, ts: m.internalDate || Date.now(), meta, intel, firstTime, deepRead: false, hasAttachment, verdict,
     };
   });
 

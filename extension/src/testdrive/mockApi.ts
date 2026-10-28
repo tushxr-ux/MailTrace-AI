@@ -23,7 +23,7 @@ export function createMockApi(askPermission: (item: StoredItem) => Promise<boole
     let verdict = evaluate(meta, intel, ctx(s.firstTime));
     const deep = deepCache.get(s.id);
     if (deep) verdict = applyDeep(verdict, deep, settings.lang);
-    return { id: s.id, threadId: s.threadId, fromEmail: meta.from.email, fromName: meta.from.name, subject: s.subject, ts: Date.now() - SAMPLES.indexOf(s) * 3_600_000, meta, intel, firstTime: s.firstTime, deepRead: !!deep, verdict };
+    return { id: s.id, threadId: s.threadId, fromEmail: meta.from.email, fromName: meta.from.name, subject: s.subject, ts: Date.now() - SAMPLES.indexOf(s) * 3_600_000, meta, intel, firstTime: s.firstTime, deepRead: !!deep, hasAttachment: false, verdict };
   };
 
   audit.unshift({ ts: Date.now(), action: "metadata_scan", scope: "gmail.metadata", count: SAMPLES.length, bodyRead: false, result: "ok" });
@@ -42,6 +42,14 @@ export function createMockApi(askPermission: (item: StoredItem) => Promise<boole
       deepCache.set(id, analyzeBody(s.body ?? { text: "" }));
       const item = build(s);
       audit.unshift({ ts: Date.now(), action: "deep_read", scope: "gmail.readonly (one-time)", messageIdHash: id.padEnd(12, "0"), bodyRead: true, result: item.verdict.level });
+      notify();
+      return item;
+    },
+    async requestLinkCheck(id) {
+      const s = bySample.get(id)!;
+      const item = build(s);
+      // In demo mode just return the item as-is (no real backend)
+      audit.unshift({ ts: Date.now(), action: "link_check", scope: "backend.domain_lookup", bodyRead: false, result: item.verdict.level });
       notify();
       return item;
     },

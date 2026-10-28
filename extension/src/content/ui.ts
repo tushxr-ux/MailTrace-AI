@@ -13,11 +13,17 @@ export function renderBadge(item: StoredItem, state: PanelState): HTMLElement {
   const quiet = lvl === "green" && pillText(item, state.settings.lang) === "Safe"; // only unverified-but-fine mail stays silent
   const pill = el("span", { class: `pill ${lvl}${quiet ? " quiet" : ""}`, attrs: { title: reasonOf(item, state.settings.lang) } },
     el("span", { class: "dot" }), el("span", { class: "label", text: pillText(item, state.settings.lang) }));
-  root.append(pill);
+  // Attachment hint — shown as a small paperclip tag next to the pill
+  if (item.hasAttachment && lvl !== "green") {
+    const clip = el("span", { class: "attach-hint", attrs: { title: "Contains attachment — check before opening" }, text: "📎 Attachment" });
+    root.append(pill, clip);
+  } else {
+    root.append(pill);
+  }
   return host;
 }
 
-type View = "idle" | "loading" | "report" | "blocked" | "safe";
+type View = "idle" | "loading" | "report" | "blocked" | "safe" | "link-prompt";
 
 export interface Banner { host: HTMLElement; update(item: StoredItem, state: PanelState): void }
 
@@ -41,6 +47,8 @@ export function createBanner(initial: StoredItem, initialState: PanelState, api:
   const onBlock = () => run("loading", async () => { await api.block(item.fromEmail); view = "blocked"; });
   const onUnblock = () => run("loading", async () => { await api.unblock(item.fromEmail); view = "idle"; });
   const onSafe = () => run("loading", async () => { await api.markSafe(item.fromEmail); view = "safe"; });
+  const onLinkCheck = () => run("loading", async () => { item = await api.requestLinkCheck(item.id); view = "report"; });
+  const onLinkPromptShow = () => { view = "link-prompt"; render(); };
 
   function render() {
     const lang = state.settings.lang;
@@ -64,10 +72,27 @@ export function createBanner(initial: StoredItem, initialState: PanelState, api:
       return;
     }
 
+    if (view === "link-prompt") {
+      mount.append(el("div", { class: `card ${lvl}` },
+        el("div", { class: "top" }, el("div", { class: "light", text: "🔗" }),
+          el("div", { class: "grow" },
+            el("div", { class: "head" }, el("img", { attrs: { src: iconUrl(), alt: "" } }), "MailTrace AI · Link Check"),
+            el("p", { class: "reason", text: "This email contains links or attachments. Allow MailTrace AI to check them against threat databases? Only domain names are sent — never the full email." }),
+            el("div", { class: "actions" },
+              el("button", { class: "primary", text: "Allow — Check links", on: { click: () => void onLinkCheck() } }),
+              el("button", { text: "No thanks", on: { click: () => { view = "idle"; render(); } } }),
+            ),
+            error ? el("div", { class: "err", text: error }) : null))));
+      return;
+    }
+
     const loading = view === "loading";
+    // Show "Check links" button for suspicious/danger emails that have attachment hint or link domains
+    const hasLinks = (item.verdict.evidence.deep?.linkDomains?.length ?? 0) > 0 || item.hasAttachment;
     const buttons = [
       el("button", { class: "danger", text: "Block sender", attrs: loading ? { disabled: "" } : {}, on: { click: () => void onBlock() } }),
-      el("button", { class: "primary", text: loading ? "Reading this email once…" : item.deepRead ? "Refresh report" : "View report", attrs: loading ? { disabled: "" } : {}, on: { click: () => void onReport() } }),
+      ...(hasLinks && !item.deepRead && !loading ? [el("button", { class: "warn", text: "🔗 Check links", attrs: {}, on: { click: () => onLinkPromptShow() } })] : []),
+      el("button", { class: "primary", text: loading ? "Reading this email once…" : item.deepRead ? "Refresh report" : "Deep analysis", attrs: loading ? { disabled: "" } : {}, on: { click: () => void onReport() } }),
       el("button", { text: "Mark as safe", attrs: loading ? { disabled: "" } : {}, on: { click: () => void onSafe() } }),
     ];
     const card = el("div", { class: `card ${lvl}` },

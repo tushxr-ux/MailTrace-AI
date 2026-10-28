@@ -94,3 +94,47 @@ export async function clearAll(): Promise<void> {
 }
 
 export { reeval };
+
+/**
+ * Link-check (user-consented). Runs VirusTotal on link domains found in the stored deep findings
+ * (or triggers a limited body read to extract them). No body is stored.
+ * This is lighter than a full requestReport — it only looks up domains already extracted.
+ */
+export async function requestLinkCheck(id: string): Promise<StoredItem> {
+  const items = await get("items");
+  const item = items.find((i) => i.id === id);
+  if (!item) throw new Error("That email is no longer in the list.");
+
+  // If we already have deep findings (from a prior report), just re-run the reputation lookup.
+  const existing = item.verdict.evidence.deep;
+  const domains = existing?.linkDomains ?? [];
+
+  if (!domains.length) {
+    // No link domains yet — surface whatever we already know without a body read.
+    await audit({ action: "link_check", scope: "backend.domain_lookup (no links found)", bodyRead: false, result: "ok" });
+    return item;
+  }
+
+  const reps = await lookupDomains(domains);
+  const hits = [...(existing?.hits ?? [])];
+  for (const r of reps ?? []) {
+    if ((r.vtMalicious ?? 0) >= 1) {
+      hits.push({ id: "D-linkrep", points: 30, family: "reputation", reasonKey: "reported", note: `Link domain ${r.domain} flagged by ${r.vtMalicious} engine(s)` });
+    }
+  }
+  // Patch the existing verdict with updated hits — do not re-read the body.
+  const updated: StoredItem = {
+    ...item,
+    verdict: {
+      ...item.verdict,
+      evidence: {
+        ...item.verdict.evidence,
+        deep: existing ? { ...existing, hits } : undefined,
+      },
+    },
+  };
+  await putItems([updated]);
+  await updateBadge();
+  await audit({ action: "link_check", scope: "backend.domain_lookup", bodyRead: false, result: updated.verdict.level });
+  return updated;
+}

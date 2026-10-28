@@ -1,7 +1,7 @@
 import { CONFIG } from "../shared/config";
 
 const API = "https://gmail.googleapis.com/gmail/v1/users/me";
-const META_HEADERS = ["From", "Reply-To", "Return-Path", "Received", "Authentication-Results", "Subject", "Message-ID"];
+const META_HEADERS = ["From", "Reply-To", "Return-Path", "Received", "Authentication-Results", "Subject", "Message-ID", "Content-Type", "X-Mailer"];
 
 export interface GmailMeta {
   id: string;

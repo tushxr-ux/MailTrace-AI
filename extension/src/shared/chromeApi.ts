@@ -3,6 +3,7 @@ import type { Api, PanelState, Settings, StoredItem } from "./types";
 type Msg =
   | { type: "getState" } | { type: "scanNow" } | { type: "signIn" }
   | { type: "requestReport"; id: string }
+  | { type: "requestLinkCheck"; id: string }
   | { type: "block" | "unblock" | "markSafe"; email: string }
   | { type: "setSettings"; patch: Partial<Settings> } | { type: "clearData" };
 
@@ -18,6 +19,7 @@ export const chromeApi: Api = {
   scanNow: () => send({ type: "scanNow" }),
   signIn: () => send({ type: "signIn" }),
   requestReport: (id) => send<StoredItem>({ type: "requestReport", id }),
+  requestLinkCheck: (id) => send<StoredItem>({ type: "requestLinkCheck", id }),
   block: (email) => send({ type: "block", email }),
   unblock: (email) => send({ type: "unblock", email }),
   markSafe: (email) => send({ type: "markSafe", email }),
